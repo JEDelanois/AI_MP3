@@ -1,0 +1,10 @@
+gnore everything
+*
+
+# track .gitignore
+!.gitignore
+
+# track .cpp and .h files
+!*.cpp
+!*.h
+
