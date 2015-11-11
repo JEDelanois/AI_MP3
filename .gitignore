@@ -4,7 +4,11 @@ gnore everything
 # track .gitignore
 !.gitignore
 
-# track .cpp and .h files
+# track .cpp and .h files and .txt files
 !*.cpp
 !*.h
+!*.txt
 
+
+#track folder
+!digitdata
