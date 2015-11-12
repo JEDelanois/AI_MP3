@@ -7,7 +7,7 @@
 //
 #define IMAGEWIDTH 28
 #define IMAGEHEIGHT 28
-#define SMOOTHVALUE 1
+#define SMOOTHVALUE 10
 #define NUMBERCHARS 10 // number of characters can identify
 
 
@@ -201,7 +201,6 @@ void Classification::classify()
                     
                 }
             }
-            length = test_data.tellg();
             test_data.get(); //scan in extra newline character
         }
             
@@ -212,10 +211,13 @@ void Classification::classify()
         highestidx = 0;
         double highestval;
         highestval = char_probs[0];
-        for(int z =0; z < int(NUMBERCHARS); z++)
+        for(int z = 0; z < int(NUMBERCHARS); z++)
         {
             if(char_probs[z] > highestval)// if found a greater probabliliyt
+            {
                 highestidx = z; //switch the index
+                highestval = char_probs[z];
+            }
         }
         
         //push the higest index becasue that is your prediction for the current image
@@ -265,5 +267,6 @@ void Classification::checkSolution()
     for(int i = 0; i < 1000; i++)
         cout << soulutions[i] << "  " << predictions[i]<<endl;
      */
+     
 }
 
