@@ -15,7 +15,6 @@
 #define SMOOTHVALUE 1
 #define NUMBERCHARS 10 // number of characters can identify
 
-
 #include <stdio.h>
 #include <string>
 #include <fstream>

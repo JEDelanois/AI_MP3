@@ -5,10 +5,7 @@
 //  Created by Erik on 11/11/15.
 //  Copyright (c) 2015 Erik. All rights reserved.
 //
-#define IMAGEWIDTH 28
-#define IMAGEHEIGHT 28
-#define SMOOTHVALUE 10
-#define NUMBERCHARS 10 // number of characters can identify
+
 
 
 #include "DigitClassification.h"
@@ -20,12 +17,12 @@ using namespace std;
 
 
 void PixArrayData::init(float val) // initializes the number of black pixels to be the given value
-{
+{float test;
     for(int x = 0; x < (int)IMAGEWIDTH; x++)
     {
         for(int y = 0; y < (int)IMAGEHEIGHT; y++)
         {
-            num_black[x][y] = val; // set all pixels to the smoothed value
+            test = num_black[x][y] = val; // set all pixels to the smoothed value
         }
     }
     
@@ -262,6 +259,15 @@ void Classification::checkSolution()
     {
         cout << i << "\t\t\t" << correct[i] << "\t\t\t" << total_attempted[i] << "\t\t\t" << (correct[i]/total_attempted[i])*100 << "%" << endl;
     }
+    float grand_total = 0;
+    float total_right = 0;
+    
+    for(int i = 0; i < (int)NUMBERCHARS; i++)
+    {
+        grand_total += total_attempted[i];
+        total_right += correct[i];
+    }
+    cout << "Total\t\t" << total_right << "\t\t\t" << grand_total << "\t\t\t" << (total_right/grand_total)*100 << "%" << endl;
     
     /*
     for(int i = 0; i < 1000; i++)
