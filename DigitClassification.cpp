@@ -171,46 +171,56 @@ void Classification::classify()
     
     
     double char_probs[(int)NUMBERCHARS];// probablitiy associated with each character for each image
-    
+    int length;
     
     //This function assumes that the text data is formatted properly
     // ie chuncks or 28x28 arrays of pixels
     while(!test_data.eof())// for all the characters in the file
     {
-        for(int i = 0; i < (int)NUMBERCHARS; i++) // get probability for all characters
+        //initilaze all probabilites to be their prior values for each picture
+        for(int i = 0; i < (int)NUMBERCHARS; i++)
         {
-            double total = log(dict.prior(i));// start out the total at value of the prior
-            for(int y = 0; y < (int)IMAGEHEIGHT; y++)
+            char_probs[i] = log(dict.prior(i));
+        }
+        
+        for(int y = 0; y < (int)IMAGEHEIGHT; y++)
+        {
+            for(int x = 0;x <(int)IMAGEWIDTH; x++)
             {
-                for(int x = 0;x <(int)IMAGEWIDTH; x++)
+                char c = test_data.get();
+                
+                for(int i = 0; i < (int)NUMBERCHARS; i++) // get probability for all characters
                 {
-                    char c = test_data.get();
-                    
+
                     //multipy the current val by the next pixel probalility
                     if(c == ' ')
-                        total = total * log(dict.data[i].prob_white(x, y)); //if white space multiply by white probability
+                        char_probs[i] = char_probs[i] + log(dict.data[i].prob_white(x, y)); //if white space multiply by white probability
                     else
-                        total = total * log(dict.data[i].prob_black(x, y)); //if black mark muliply by probibility it is black
+                        char_probs[i] = char_probs[i] +  log(dict.data[i].prob_black(x, y)); //if black mark muliply by probibility it is black
+                    
+                    
                 }
-                test_data.get(); //scan in extra newline character
             }
-            
-            char_probs[i] = total;
-        
-            
-            //chose the highest probability
-            int highestidx = 0;
-            double highestval = char_probs[0];
-            for(int i =0; i < int(NUMBERCHARS); i++)
-            {
-                if(char_probs[i] > highestval)// if found a greater probabliliyt
-                    highestidx = i; //switch the index
-            }
-            
-            //push the higest index becasue that is your prediction for the current image
-            int length = test_data.tellg();
-            predictions.push_back(char_probs[highestidx]);
+            length = test_data.tellg();
+            test_data.get(); //scan in extra newline character
         }
+            
+    
+        
+        //chose the highest probability
+        int highestidx = 0;
+        highestidx = 0;
+        double highestval;
+        highestval = char_probs[0];
+        for(int z =0; z < int(NUMBERCHARS); z++)
+        {
+            if(char_probs[z] > highestval)// if found a greater probabliliyt
+                highestidx = z; //switch the index
+        }
+        
+        //push the higest index becasue that is your prediction for the current image
+        predictions.push_back(highestidx);
+        
         
     }
     
@@ -245,10 +255,15 @@ void Classification::checkSolution()
     
     //print out data
     cout << "Smoothing Value = " << (int)SMOOTHVALUE << endl;
-    cout << "Character\tCorrect\tAttempts\tPercentage" << endl;
+    cout << "Character\tCorrect\t\tAttempts\tPercentage" << endl;
     for(int i = 0; i <(int)NUMBERCHARS; i++)
     {
-        cout << i << "\t" << correct[i] << "\t" << total_attempted[i] << "\t" << (correct[i]/total_attempted[i])*100 << "%" << endl;
+        cout << i << "\t\t\t" << correct[i] << "\t\t\t" << total_attempted[i] << "\t\t\t" << (correct[i]/total_attempted[i])*100 << "%" << endl;
     }
+    
+    /*
+    for(int i = 0; i < 1000; i++)
+        cout << soulutions[i] << "  " << predictions[i]<<endl;
+     */
 }
 
