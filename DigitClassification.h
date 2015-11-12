@@ -9,11 +9,19 @@
 #ifndef __AI_MP3__DigitClassification__
 #define __AI_MP3__DigitClassification__
 
-
+/*
+//for numbers
 #define IMAGEWIDTH 28
 #define IMAGEHEIGHT 28
 #define SMOOTHVALUE 1
 #define NUMBERCHARS 10 // number of characters can identify
+*/
+
+//for faces
+#define IMAGEWIDTH 60
+#define IMAGEHEIGHT 70
+#define SMOOTHVALUE 1
+#define NUMBERCHARS 2 // number of characters can identify
 
 #include <stdio.h>
 #include <string>
@@ -21,7 +29,6 @@
 #include <vector>
 
 using namespace std;
-#endif /* defined(__AI_MP3__DigitClassification__) */
 
 
 class PixArrayData //this is super simple but i am adding it as a class incase i want to store extra data about each array later
@@ -75,6 +82,11 @@ private:
     
     
 };
+
+
+
+#endif /* defined(__AI_MP3__DigitClassification__) */
+
 
 
 
