@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <string>
 #include <fstream>
+#include <vector>
 
 using namespace std;
 #endif /* defined(__AI_MP3__DigitClassification__) */
@@ -39,14 +40,40 @@ private:
     
 };
 
+
+
+
 class Data
 {
 public:
     void training(string tables_path, string images_path);
     PixArrayData data[(int)NUMBERCHARS];
     void printPercentageMaps(float percent);
+    double prior(int idx); // returns the percentage (less than 1) of the value associated with that index's prior
 private:
     double total_images; // total number of training images
+    
+};
+
+
+class Classification
+{
+    
+public:
+    Data dict;
+    
+    
+    void init(string training_tables_path, string training_images_path, string test_tables_path, string test_images_path);
+    // initializes the data element and the character arrays for the test data
+
+    void classify(); // classify all characters in file specified by t_images_path and store the predictions into the solution array
+    void checkSolution();
+private:
+    vector<int> soulutions;
+    vector<int> predictions;
+    
+    string t_images_path; // path to the test images
+    
     
 };
 

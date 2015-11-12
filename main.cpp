@@ -8,11 +8,13 @@ using namespace std;
 int main( int argc, const char* argv[] )
 {
 
-    Data temp;
-    temp.training("/Users/Erik/Documents/School/AI/AI_MP3/AI_MP3/digitdata/traininglabels.txt", "/Users/Erik/Documents/School/AI/AI_MP3/AI_MP3/digitdata/trainingimages.txt");
+    Classification temp;
+    temp.init("/Users/Erik/Documents/School/AI/AI_MP3/AI_MP3/digitdata/traininglabels.txt", "/Users/Erik/Documents/School/AI/AI_MP3/AI_MP3/digitdata/trainingimages.txt", "/Users/Erik/Documents/School/AI/AI_MP3/AI_MP3/digitdata/testlabels.txt", "/Users/Erik/Documents/School/AI/AI_MP3/AI_MP3/digitdata/testimages.txt");
     
     
-    temp.printPercentageMaps(.5);
+    temp.dict.printPercentageMaps(20);
+    temp.classify();
+    temp.checkSolution();
     
     
 }
