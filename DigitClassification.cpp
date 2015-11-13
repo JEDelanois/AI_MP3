@@ -253,7 +253,7 @@ void Classification::checkSolution()
     }
     
     //print out data
-    cout << "Smoothing Value = " << (int)SMOOTHVALUE << endl;
+    cout << "Smoothing Value = " << (int)SMOOTHVALUE << endl << endl << endl;
     cout << "Character\tCorrect\t\tAttempts\tPercentage" << endl;
     for(int i = 0; i <(int)NUMBERCHARS; i++)
     {
@@ -268,6 +268,48 @@ void Classification::checkSolution()
         total_right += correct[i];
     }
     cout << "Total\t\t" << total_right << "\t\t\t" << grand_total << "\t\t\t" << (total_right/grand_total)*100 << "%" << endl;
+    
+    
+    
+    
+    
+    //create classification matrix
+    double conf[NUMBERCHARS][NUMBERCHARS];
+    
+    //initialize the confusion matrix
+    for(int a = 0; a < (int)NUMBERCHARS; a++)
+    {
+         for(int b = 0; b < (int)NUMBERCHARS; b++)
+         {
+             conf[a][b] = 0;
+         }
+    }
+    
+    for(int i = 0; i < (int)soulutions.size(); i++)
+    {
+        conf[soulutions[i]][predictions[i]] = conf[soulutions[i]][predictions[i]] +1;
+    }
+    
+    cout << endl << endl << endl <<"Confusion Matrix:" << endl;
+    
+    for(int a = 0; a < (int)NUMBERCHARS; a++)
+    {
+        cout << "\t\t" << a;
+    }
+    
+    cout << endl;
+    cout.setf(ios::fixed,ios::floatfield);
+    cout.precision(3);
+    
+    for(int a = 0; a < (int)NUMBERCHARS; a++)
+    {
+        cout << a ;
+        for(int b = 0; b < (int)NUMBERCHARS; b++)
+        {
+            cout << "\t" << (conf[a][b] / total_attempted[a]) * 100 ;
+        }
+        cout << endl << endl;
+    }
     
     /*
     for(int i = 0; i < 1000; i++)
