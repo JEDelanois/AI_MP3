@@ -222,6 +222,7 @@ void Classification::classify()
     
     //This function assumes that the text data is formatted properly
     // ie chuncks or 28x28 arrays of pixels
+    int currIdx = 0;
     while(!test_data.eof())// for all the characters in the file
     {
         //initilaze all probabilites to be their prior values for each picture
@@ -266,10 +267,33 @@ void Classification::classify()
                 highestval = char_probs[z];
             }
         }
+        //check if anything needs to be added to examples
+        
+        //looking for smallest negative number
+        if(highestval > examps[highestidx].max_val)
+        {
+            //save the highest index max value
+            examps[highestidx].max_val = highestval;
+            
+            //save the index of the image
+            examps[highestidx].max_idx = currIdx;
+        }
+        
+        //looking for biggest negative number
+        else if(highestval < examps[highestidx].min_val)
+        {
+            //save the highest index max value
+            examps[highestidx].min_val = highestval;
+            
+            //save the index of the image
+            examps[highestidx].min_idx = currIdx;
+        }
         
         //push the higest index becasue that is your prediction for the current image
         predictions.push_back(highestidx);
         
+        
+        currIdx++;
         
     }
     
@@ -366,6 +390,20 @@ void Classification::checkSolution()
         cout << soulutions[i] << "  " << predictions[i]<<endl;
      */
     
+    for(int i = 0; i < (int)NUMBERCHARS; i++)
+    {
+        cout << "For Character '" << i << "' this is the most prototypical image:" << endl;
+        
+        printImage(examps[i].max_idx);
+        
+        
+        cout << "For Character '" << i << "' this is the least prototypical image:" << endl;
+        
+        printImage(examps[i].min_idx);
+        
+        
+        
+    }
     
 }
 

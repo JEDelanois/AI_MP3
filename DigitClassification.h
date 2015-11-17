@@ -28,6 +28,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <float.h>
 
 using namespace std;
 
@@ -86,9 +87,20 @@ private:
     vector<vector<vector<char>>> data;
     
     
-    
     void loadData(string filepath);
     void printImage(int idx); // prints the image of the data of teh coresponding index
+    
+    //used to save and print extreame vals for data examples
+    class examples
+    {
+    public:
+        double max_val = -DBL_MAX;
+        int max_idx = 0;
+        double min_val = DBL_MAX;
+        int min_idx = 0;
+    };
+    
+    examples examps[(int)NUMBERCHARS];
 };
 
 
