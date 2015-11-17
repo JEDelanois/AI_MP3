@@ -89,6 +89,7 @@ private:
     
     void loadData(string filepath);
     void printImage(int idx); // prints the image of the data of teh coresponding index
+    void printOdds(int char1, int char2 ,double tolerance);
     
     //used to save and print extreame vals for data examples
     class examples

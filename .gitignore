@@ -13,3 +13,7 @@ gnore everything
 #track folder
 !digitdata
 !facedata
+
+
+#report
+!aimp3report.docx

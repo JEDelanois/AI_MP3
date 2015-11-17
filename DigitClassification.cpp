@@ -301,6 +301,31 @@ void Classification::classify()
 }
 
 
+void Classification::printOdds(int char1, int char2, double tolerance)
+{
+    cout << "This is the odds ratio for " << char1 << "/" << char2 << " :"<< endl;
+    for(int y = 0; y < IMAGEHEIGHT; y++)
+    {
+        for(int x = 0;x< IMAGEWIDTH; x++)
+        {
+            if( (dict.data[char1].prob_black(x, y) /dict.data[char2].prob_black(x, y)) > 1+tolerance)
+                cout << "+";
+            else if( (dict.data[char1].prob_black(x, y) /dict.data[char2].prob_black(x, y)) < 1 - tolerance)
+                cout << "-";
+            else
+                cout << " ";
+        }
+        
+        cout << endl;
+        
+    }
+    
+    cout << endl << endl;
+    
+    
+}
+
+
 
 void Classification::checkSolution()
 {
@@ -404,6 +429,12 @@ void Classification::checkSolution()
         
         
     }
+    
+    
+    printOdds( 0, 5, .1);
+    printOdds( 5, 3, .1);
+    printOdds( 8, 3, .1);
+    printOdds( 8, 9, .1);
     
 }
 
