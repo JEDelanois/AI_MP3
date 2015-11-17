@@ -62,7 +62,9 @@ private:
     
 };
 
-
+/*
+ CANNOT HAVE ANY NEWLINE OR BLANK CHARACTERS AT THE END OF ANY DATA INPUT FILES
+ */
 class Classification
 {
     
@@ -78,10 +80,15 @@ public:
 private:
     vector<int> soulutions;
     vector<int> predictions;
-    
     string t_images_path; // path to the test images
     
+                                //data[image number][y][x] is the notation that you need to use
+    vector<vector<vector<char>>> data;
     
+    
+    
+    void loadData(string filepath);
+    void printImage(int idx); // prints the image of the data of teh coresponding index
 };
 
 

@@ -16,7 +16,7 @@ int main( int argc, const char* argv[] )
     temp.init("/Users/Erik/Documents/School/AI/AI_MP3/AI_MP3/facedata/facedatatrainlabels.txt", "/Users/Erik/Documents/School/AI/AI_MP3/AI_MP3/facedata/facedatatrain.txt", "/Users/Erik/Documents/School/AI/AI_MP3/AI_MP3/facedata/facedatatestlabels.txt", "/Users/Erik/Documents/School/AI/AI_MP3/AI_MP3/facedata/facedatatest.txt");
     */
     
-    temp.dict.printPercentageMaps(20);
+    //temp.dict.printPercentageMaps(20);
     temp.classify();
     temp.checkSolution();
     

@@ -154,8 +154,58 @@ void Classification::init(string training_tables_path, string training_images_pa
     }
     
     t_images_path = test_images_path;
-    
+    loadData(test_images_path);
     sol_file.close();
+}
+
+void Classification::loadData(string filepath)
+{
+    ifstream dataFile;
+    dataFile.open(filepath);
+    //reset entire array
+    data.resize(0);
+    
+    
+   
+    
+    // current character
+    int i = 0;
+    while(!dataFile.eof())// for the entire solution file
+    {
+        
+        //add new character
+        data.push_back( vector<vector<char>>() );
+        
+        for(int y = 0; y < IMAGEHEIGHT; y++)
+        {
+            //add a new row
+            data[i].push_back( vector<char>() );
+            for(int x = 0; x < IMAGEWIDTH + 1; x++)
+            {
+                
+                //scan in that row
+                char c = dataFile.get();
+                data[i][y].push_back(c);
+            }
+        }
+        
+        
+        
+        i++;
+    }
+    
+    
+}
+
+void Classification::printImage(int idx)
+{
+    for(int y = 0; y < IMAGEHEIGHT; y++)
+    {
+        for(int x = 0; x < IMAGEWIDTH + 1 ; x++)
+        {
+            cout << data[idx][y][x];
+        }
+    }
 }
 
 
@@ -315,6 +365,7 @@ void Classification::checkSolution()
     for(int i = 0; i < 1000; i++)
         cout << soulutions[i] << "  " << predictions[i]<<endl;
      */
-     
+    
+    
 }
 
