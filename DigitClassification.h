@@ -84,7 +84,7 @@ private:
     string t_images_path; // path to the test images
     
                                 //data[image number][y][x] is the notation that you need to use
-    vector<vector<vector<char>>> data;
+    vector<vector<vector<char>>> testData;
     
     
     void loadData(string filepath);

@@ -84,7 +84,7 @@ void Data::training(string tables_path, string images_path)
             images_file.get(); // read in the newline character and discard it
         }
         
-        int length = images_file.tellg();
+        int length = (int)images_file.tellg();
         length++;
         //all of the data has now been read in
         
@@ -163,7 +163,7 @@ void Classification::loadData(string filepath)
     ifstream dataFile;
     dataFile.open(filepath);
     //reset entire array
-    data.resize(0);
+    testData.resize(0);
     
     
    
@@ -174,18 +174,18 @@ void Classification::loadData(string filepath)
     {
         
         //add new character
-        data.push_back( vector<vector<char>>() );
+        testData.push_back( vector<vector<char>>() );
         
         for(int y = 0; y < IMAGEHEIGHT; y++)
         {
             //add a new row
-            data[i].push_back( vector<char>() );
+            testData[i].push_back( vector<char>() );
             for(int x = 0; x < IMAGEWIDTH + 1; x++)
             {
                 
                 //scan in that row
                 char c = dataFile.get();
-                data[i][y].push_back(c);
+                testData[i][y].push_back(c);
             }
         }
         
@@ -203,7 +203,7 @@ void Classification::printImage(int idx)
     {
         for(int x = 0; x < IMAGEWIDTH + 1 ; x++)
         {
-            cout << data[idx][y][x];
+            cout << testData[idx][y][x];
         }
     }
 }
@@ -218,7 +218,7 @@ void Classification::classify()
     
     
     double char_probs[(int)NUMBERCHARS];// probablitiy associated with each character for each image
-    int length;
+    //int length;
     
     //This function assumes that the text data is formatted properly
     // ie chuncks or 28x28 arrays of pixels
