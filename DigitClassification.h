@@ -63,6 +63,31 @@ private:
     
 };
 
+
+
+class Weight
+{
+public:
+    Weight(){
+        for(int x = 0; x < (int)IMAGEWIDTH; x++){
+            for(int y = 0; y < (int)IMAGEHEIGHT; y++)
+            {
+                val[x][y] = 0;
+            }
+        }
+        
+    }
+    
+    double val[(int)IMAGEWIDTH][(int)IMAGEHEIGHT];  // weight values
+    double b = 0;                                   // b value
+    int getWidth(){return (int)IMAGEWIDTH;}
+    int getHeight(){return (int)IMAGEHEIGHT;}
+private:
+};
+
+
+
+
 /*
  CANNOT HAVE ANY NEWLINE OR BLANK CHARACTERS AT THE END OF ANY DATA INPUT FILES
  */
@@ -78,16 +103,25 @@ public:
 
     void classify(); // classify all characters in file specified by t_images_path and store the predictions into the solution array
     void checkSolution();
+    //STUFF FOR PERCEPTRON
+    
+    void perceptronTrain(); // trains based off of the given training data in trainData
+    
+    
+    
 private:
-    vector<int> soulutions;
+    vector<int> trainSoulutions;
+    vector<int> testSoulutions;
     vector<int> predictions;
     string t_images_path; // path to the test images
     
                                 //data[image number][y][x] is the notation that you need to use
+    vector<vector<vector<char>>> trainData;
     vector<vector<vector<char>>> testData;
     
     
-    void loadData(string filepath);
+    
+    void loadData(string filepath,vector<vector<vector<char>>> & d );
     void printImage(int idx); // prints the image of the data of teh coresponding index
     void printOdds(int char1, int char2 ,double tolerance);
     
@@ -102,6 +136,16 @@ private:
     };
     
     examples examps[(int)NUMBERCHARS];
+    
+    
+    //STUFF FOR PERCEPTRON
+    bool shouldAddB = true;
+    bool shouldTrainRandom = false;
+    Weight weights[(int)NUMBERCHARS]; // get a weight vector for every possible char
+    double getDotPrdouct(Weight & weight,vector<vector<char>> & charArray ); // returns the value of the dot product of the perceptron
+                                                                            // weight and the current character vector
+    void Adjustweight(Weight & weight, vector<vector<char>> & charArray, double a);
+    
 };
 
 

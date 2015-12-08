@@ -140,30 +140,45 @@ double Data::prior(int idx)
 void Classification::init(string training_tables_path, string training_images_path, string test_tables_path, string test_images_path)
 {
     dict.training(training_tables_path, training_images_path);
-    soulutions.resize(0); //clear the soulutions vector
+    
+    testSoulutions.resize(0); //clear the soulutions vector
     //initialize the solution vector;
     ifstream sol_file;
     sol_file.open(test_tables_path);
     
-    soulutions.resize(0);
+    testSoulutions.resize(0);
     while(!sol_file.eof())// for the entire solution file
     {
         int temp;
         sol_file >> temp;
-        soulutions.push_back(temp); //save all the solutions
+        testSoulutions.push_back(temp); //save all the solutions
+    }
+    
+    ifstream trainsol_file;
+    trainsol_file.open(training_tables_path);
+    
+    trainSoulutions.resize(0);
+    while(!trainsol_file.eof())// for the entire solution file
+    {
+        int temp;
+        trainsol_file >> temp;
+        trainSoulutions.push_back(temp); //save all the solutions
     }
     
     t_images_path = test_images_path;
-    loadData(test_images_path);
+    loadData(test_images_path,testData);
+    loadData(training_images_path,trainData);
     sol_file.close();
+    trainsol_file.close();
+    
 }
 
-void Classification::loadData(string filepath)
+void Classification::loadData(string filepath,vector<vector<vector<char>>> & d )
 {
     ifstream dataFile;
     dataFile.open(filepath);
     //reset entire array
-    testData.resize(0);
+    d.resize(0);
     
     
    
@@ -174,18 +189,18 @@ void Classification::loadData(string filepath)
     {
         
         //add new character
-        testData.push_back( vector<vector<char>>() );
+        d.push_back( vector<vector<char>>() );
         
         for(int y = 0; y < IMAGEHEIGHT; y++)
         {
             //add a new row
-            testData[i].push_back( vector<char>() );
+            d[i].push_back( vector<char>() );
             for(int x = 0; x < IMAGEWIDTH + 1; x++)
             {
                 
                 //scan in that row
                 char c = dataFile.get();
-                testData[i][y].push_back(c);
+                d[i][y].push_back(c);
             }
         }
         
@@ -199,13 +214,155 @@ void Classification::loadData(string filepath)
 
 void Classification::printImage(int idx)
 {
-    for(int y = 0; y < IMAGEHEIGHT; y++)
+    for(int y = 0; y < (int)IMAGEHEIGHT; y++)
     {
-        for(int x = 0; x < IMAGEWIDTH + 1 ; x++)
+        for(int x = 0; x < (int)IMAGEWIDTH + 1 ; x++)
         {
             cout << testData[idx][y][x];
         }
     }
+}
+
+
+void Classification::Adjustweight(Weight & weight, vector<vector<char>> & charArray, double a)
+{
+    for(int y = 0; y < (int)IMAGEHEIGHT; y++)
+    {
+        for(int x = 0; x < (int)IMAGEWIDTH ; x++)
+        {
+           
+            if(charArray[y][x] == ' ')// if no pixel present then do nothing
+            {
+                
+            }
+            else
+            {
+                weight.val[x][y] = weight.val[x][y] + (a * 1);
+                            }
+            
+            
+        }
+    }
+    //adjust b val if
+    //if testing without bvals then do so
+    if(shouldAddB)
+        weight.b += weight.b + (a*1);
+
+    
+}
+
+
+void Classification::perceptronTrain()
+{
+    if(trainData.size() != trainSoulutions.size())
+    {
+        cout << "Training image vector size does not match Training solution vector"  << trainData.size() << " " <<trainSoulutions.size() << endl;
+        return;
+    }
+    
+    if(shouldTrainRandom)
+    {
+        cout << "ERROR NEED TO IMPLEMENT RANDOM TRAINING!!!!!!!!!!!!!!!!!!!!!"<< endl;
+    }
+    else // train not randomly
+    {
+        bool needTrain = true;
+        double epochNum = 0;
+        double a = 1; // Alpha value
+        int lastNumWrong = INT_MAX;
+        int numWrong = 0;
+        int chainWrong = 0;
+        
+        while(needTrain) // while you need to train
+        {
+            needTrain = false;// assume you dont need to train
+            
+            lastNumWrong = numWrong;
+            numWrong = 0;
+            
+            for(int i = 0; i < (int)trainData.size(); i++)// for all of the trainin images
+            {
+                
+                int prediction = -1;
+                double predicVal = -DBL_MAX;// assume negative double max for prediction
+            
+            
+                for(int j = 0; j < (int)NUMBERCHARS; j++) // for all of the possible character (ie number of weiht vectors)
+                {
+                    double temp = getDotPrdouct(weights[j], trainData[i]); // getdot product val
+                    if(temp >= predicVal) // if found a better prediction change your prediction
+                    {
+                        prediction = j;
+                        predicVal = temp;
+                    }
+                }
+                
+                //you now have your prediction so see if it is correct and adjust weight if you need to
+                
+                if(prediction != trainSoulutions[i]) // if prediction is wrong
+                {
+                    numWrong++;
+                    //upddate weights
+                    
+                    //decrease wrong one
+                    Adjustweight(weights[prediction], trainData[i], -a);
+                    
+                    //increase correct one
+                    Adjustweight(weights[trainSoulutions[i]], trainData[i], a);
+                }
+                
+                
+            }
+        
+            
+            // handle if it is impossible to improve weights any more
+            if(lastNumWrong == numWrong)
+            {
+                chainWrong++;
+            }
+            else
+            {
+                chainWrong = 0;
+            }
+            
+            
+            if(chainWrong == 100)// if no improvement for 100 iterations then just quit
+                needTrain = false;
+            
+            if(numWrong == 0)// if nothing is wrong then you are done training
+                needTrain = false;
+        
+            
+            epochNum++;
+            a = 100/(100+epochNum); // get new alpha value
+        }
+        
+    }
+}
+
+double Classification::getDotPrdouct(Weight & weight,vector<vector<char>> & charArray ) // weight array and the image of the character array
+{
+    //calculate the dot product
+    double total = 0;
+    for(int x = 0; x < (int)IMAGEWIDTH; x++)
+    {
+        for(int y = 0; y < (int)IMAGEHEIGHT; y++)
+        {
+            //charArray has backwards index format so this is correct !!!!
+            if(charArray[y][x] == ' ')
+            {
+                // if there is a space add nothing to the total
+            }
+            
+            else// else add the pixel multiplied by the weight to the total
+                total += weight.val[x][y] * 1;
+        }
+    }
+    
+    if(shouldAddB)
+        total += weight.b * 1; // if you should add the bias value then add it
+    
+    return total;
 }
 
 
@@ -337,18 +494,18 @@ void Classification::checkSolution()
         total_attempted[i] = correct[i] =0; //clear all values
     }
     
-    if(soulutions.size() != predictions.size() )
+    if(testSoulutions.size() != predictions.size() )
     {
-        cout << "Error Solution size(" << soulutions.size()<< ") does not match Predictions size (" << predictions.size() << ")"<<  predictions[(int)predictions.size()-1]<< endl;
+        cout << "Error Solution size(" << testSoulutions.size()<< ") does not match Predictions size (" << predictions.size() << ")"<< endl;
         return;
     }
 
-    for(int i = 0; i < (int)soulutions.size(); i++)//for all solutions
+    for(int i = 0; i < (int)testSoulutions.size(); i++)//for all solutions
     {
-        total_attempted[soulutions[i]] = total_attempted[soulutions[i]] + 1; // increment the attempted character by one
+        total_attempted[testSoulutions[i]] = total_attempted[testSoulutions[i]] + 1; // increment the attempted character by one
         
-        if(soulutions[i] == predictions[i])
-            correct[soulutions[i]] = correct[soulutions[i]] +1; // if correct guess increment number correct by one
+        if(testSoulutions[i] == predictions[i])
+            correct[testSoulutions[i]] = correct[testSoulutions[i]] +1; // if correct guess increment number correct by one
     }
     
     //print out data
@@ -384,9 +541,9 @@ void Classification::checkSolution()
          }
     }
     
-    for(int i = 0; i < (int)soulutions.size(); i++)
+    for(int i = 0; i < (int)testSoulutions.size(); i++)
     {
-        conf[soulutions[i]][predictions[i]] = conf[soulutions[i]][predictions[i]] +1;
+        conf[testSoulutions[i]][predictions[i]] = conf[testSoulutions[i]][predictions[i]] +1;
     }
     
     cout << endl << endl << endl <<"Confusion Matrix:" << endl;
