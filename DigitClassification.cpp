@@ -237,8 +237,8 @@ void Classification::Adjustweight(Weight & weight, vector<vector<char>> & charAr
             }
             else
             {
-                weight.val[x][y] = weight.val[x][y] + (a * 1);
-                            }
+                double temp = weight.val[x][y] = weight.val[x][y] + .1*(a * 1);
+            }
             
             
         }
@@ -272,6 +272,10 @@ void Classification::perceptronTrain()
         int lastNumWrong = INT_MAX;
         int numWrong = 0;
         int chainWrong = 0;
+        double temp;
+        
+        int prediction;
+        double predicVal;// assume negative double max for prediction
         
         while(needTrain) // while you need to train
         {
@@ -283,13 +287,14 @@ void Classification::perceptronTrain()
             for(int i = 0; i < (int)trainData.size(); i++)// for all of the trainin images
             {
                 
-                int prediction = -1;
-                double predicVal = -DBL_MAX;// assume negative double max for prediction
+                prediction = -1;
+                predicVal = 0;// assume negative double max for prediction
             
             
                 for(int j = 0; j < (int)NUMBERCHARS; j++) // for all of the possible character (ie number of weiht vectors)
                 {
-                    double temp = getDotPrdouct(weights[j], trainData[i]); // getdot product val
+                    
+                    temp = getDotPrdouct(weights[j], trainData[i]); // getdot product val
                     if(temp >= predicVal) // if found a better prediction change your prediction
                     {
                         prediction = j;
@@ -301,11 +306,13 @@ void Classification::perceptronTrain()
                 
                 if(prediction != trainSoulutions[i]) // if prediction is wrong
                 {
+                    //cout << prediction << endl;
+                    int solnum = trainSoulutions[i];
+                    needTrain = true;
                     numWrong++;
                     //upddate weights
-                    
                     //decrease wrong one
-                    Adjustweight(weights[prediction], trainData[i], -a);
+                    Adjustweight(weights[prediction], trainData[i], a * (-1));
                     
                     //increase correct one
                     Adjustweight(weights[trainSoulutions[i]], trainData[i], a);
@@ -334,7 +341,7 @@ void Classification::perceptronTrain()
         
             
             epochNum++;
-            a = 100/(100+epochNum); // get new alpha value
+            a = 10/(10+epochNum); // get new alpha value
         }
         
     }
@@ -355,7 +362,9 @@ double Classification::getDotPrdouct(Weight & weight,vector<vector<char>> & char
             }
             
             else// else add the pixel multiplied by the weight to the total
+            {
                 total += weight.val[x][y] * 1;
+            }
         }
     }
     
@@ -367,21 +376,24 @@ double Classification::getDotPrdouct(Weight & weight,vector<vector<char>> & char
 
 void Classification::classifyPerceptron()
 {
+    int prediction = -1;
+    double predicVal = -DBL_MAX;// assume negative double max for prediction
+    double temp;
+    
+    
     for(int i = 0; i < (int)testData.size(); i++)// for all of the test images
     {
-        
-        int prediction = -1;
-        double predicVal = -DBL_MAX;// assume negative double max for prediction
-        
-        
+        prediction = -1;
+        predicVal = 0;
         for(int j = 0; j < (int)NUMBERCHARS; j++) // for all of the possible character (ie number of weight vectors)
         {
-            double temp = getDotPrdouct(weights[j], trainData[i]); // getdot product val
+            temp = getDotPrdouct(weights[j], trainData[i]); // getdot product val
             if(temp >= predicVal) // if found a better prediction change your prediction
             {
                 prediction = j;
                 predicVal = temp;
             }
+            cout << prediction << endl;
         }
         
         //now have our prediction so push it to the back of the solutions vector
@@ -629,8 +641,37 @@ void Classification::checkSolutionPreceptron()
     
     for(int i = 0; i < (int)NUMBERCHARS; i++)
     {
-        total_attempted[i] = correct[i] =0; //clear all values
+        total_attempted[i] = correct[i] = 0; //clear all values
     }
+    
+    for(int i = 0; i < (int)NUMBERCHARS; i++)
+    {
+        for(int y = 0; y < (int)IMAGEHEIGHT;  y++)
+        {
+            
+            for(int x = 0; x < (int)IMAGEWIDTH; x++)
+            {
+                if(weights[i].val[x][y] > 100)
+                    cout << "*";
+                else
+                    cout << " ";
+            }
+            cout << endl;
+        }
+        cout << endl << endl << endl << endl;
+    }
+    
+    for(int y = 0; y < (int)IMAGEHEIGHT;  y++)
+    {
+        
+        for(int x = 0; x < (int)IMAGEWIDTH; x++)
+        {
+            cout << weights[2].val[x][y]  << "\t" ;
+                
+        }
+        cout << endl;
+    }
+    cout << endl << endl << endl << endl;
     
     if(testSoulutions.size() != predictions.size() )
     {
