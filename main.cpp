@@ -23,6 +23,8 @@ int main( int argc, const char* argv[] )
     */
     
     temp.perceptronTrain();
+    temp.classifyPerceptron();
+    temp.checkSolutionPreceptron();
 
        
 }

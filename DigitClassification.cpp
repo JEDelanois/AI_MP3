@@ -365,6 +365,32 @@ double Classification::getDotPrdouct(Weight & weight,vector<vector<char>> & char
     return total;
 }
 
+void Classification::classifyPerceptron()
+{
+    for(int i = 0; i < (int)testData.size(); i++)// for all of the test images
+    {
+        
+        int prediction = -1;
+        double predicVal = -DBL_MAX;// assume negative double max for prediction
+        
+        
+        for(int j = 0; j < (int)NUMBERCHARS; j++) // for all of the possible character (ie number of weight vectors)
+        {
+            double temp = getDotPrdouct(weights[j], trainData[i]); // getdot product val
+            if(temp >= predicVal) // if found a better prediction change your prediction
+            {
+                prediction = j;
+                predicVal = temp;
+            }
+        }
+        
+        //now have our prediction so push it to the back of the solutions vector
+        predictions.push_back(prediction);
+        
+    }
+    
+}
+
 
 void Classification::classify()
 {
@@ -592,6 +618,92 @@ void Classification::checkSolution()
     printOdds( 5, 3, .1);
     printOdds( 8, 3, .1);
     printOdds( 8, 9, .1);
+    
+}
+
+
+void Classification::checkSolutionPreceptron()
+{
+    double total_attempted[(int)NUMBERCHARS];
+    double correct[(int)NUMBERCHARS];
+    
+    for(int i = 0; i < (int)NUMBERCHARS; i++)
+    {
+        total_attempted[i] = correct[i] =0; //clear all values
+    }
+    
+    if(testSoulutions.size() != predictions.size() )
+    {
+        cout << "Error Solution size(" << testSoulutions.size()<< ") does not match Predictions size (" << predictions.size() << ")"<< endl;
+        return;
+    }
+    
+    for(int i = 0; i < (int)testSoulutions.size(); i++)//for all solutions
+    {
+        total_attempted[testSoulutions[i]] = total_attempted[testSoulutions[i]] + 1; // increment the attempted character by one
+        
+        if(testSoulutions[i] == predictions[i])
+            correct[testSoulutions[i]] = correct[testSoulutions[i]] +1; // if correct guess increment number correct by one
+    }
+    
+    //print out data
+    cout << "Character\tCorrect\t\tAttempts\tPercentage" << endl;
+    for(int i = 0; i <(int)NUMBERCHARS; i++)
+    {
+        cout << i << "\t\t\t" << correct[i] << "\t\t\t" << total_attempted[i] << "\t\t\t" << (correct[i]/total_attempted[i])*100 << "%" << endl;
+    }
+    float grand_total = 0;
+    float total_right = 0;
+    
+    for(int i = 0; i < (int)NUMBERCHARS; i++)
+    {
+        grand_total += total_attempted[i];
+        total_right += correct[i];
+    }
+    cout << "Total\t\t" << total_right << "\t\t\t" << grand_total << "\t\t\t" << (total_right/grand_total)*100 << "%" << endl;
+    
+    
+    
+    
+    
+    //create classification matrix
+    double conf[NUMBERCHARS][NUMBERCHARS];
+    
+    //initialize the confusion matrix
+    for(int a = 0; a < (int)NUMBERCHARS; a++)
+    {
+        for(int b = 0; b < (int)NUMBERCHARS; b++)
+        {
+            conf[a][b] = 0;
+        }
+    }
+    
+    for(int i = 0; i < (int)testSoulutions.size(); i++)
+    {
+        conf[testSoulutions[i]][predictions[i]] = conf[testSoulutions[i]][predictions[i]] +1;
+    }
+    
+    cout << endl << endl << endl <<"Confusion Matrix:" << endl;
+    
+    for(int a = 0; a < (int)NUMBERCHARS; a++)
+    {
+        cout << "\t\t" << a;
+    }
+    
+    cout << endl;
+    cout.setf(ios::fixed,ios::floatfield);
+    cout.precision(3);
+    
+    for(int a = 0; a < (int)NUMBERCHARS; a++)
+    {
+        cout << a ;
+        for(int b = 0; b < (int)NUMBERCHARS; b++)
+        {
+            cout << "\t" << (conf[a][b] / total_attempted[a]) * 100 ;
+        }
+        cout << endl << endl;
+    }
+    
     
 }
 

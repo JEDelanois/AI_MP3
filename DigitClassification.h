@@ -103,9 +103,13 @@ public:
 
     void classify(); // classify all characters in file specified by t_images_path and store the predictions into the solution array
     void checkSolution();
+    
+    
     //STUFF FOR PERCEPTRON
     
     void perceptronTrain(); // trains based off of the given training data in trainData
+    void classifyPerceptron();
+    void checkSolutionPreceptron();
     
     
     
