@@ -144,11 +144,14 @@ private:
     
     //STUFF FOR PERCEPTRON
     bool shouldAddB = true;
-    bool shouldTrainRandom = false;
+    bool shouldTrainRandom = true;
     Weight weights[(int)NUMBERCHARS]; // get a weight vector for every possible char
     double getDotPrdouct(Weight & weight,vector<vector<char>> & charArray ); // returns the value of the dot product of the perceptron
                                                                             // weight and the current character vector
     void Adjustweight(Weight & weight, vector<vector<char>> & charArray, double a);
+    
+    vector<int> idxs;
+    
     
 };
 

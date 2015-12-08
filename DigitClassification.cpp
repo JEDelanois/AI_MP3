@@ -11,6 +11,11 @@
 #include "DigitClassification.h"
 #include <iostream>
 #include <math.h>
+#include <iostream>     // std::cout
+#include <algorithm>    // std::shuffle
+#include <array>        // std::array
+#include <random>       // std::default_random_engine
+#include <chrono>       // std::chrono::system_clock
 
 using namespace std;
 
@@ -171,6 +176,11 @@ void Classification::init(string training_tables_path, string training_images_pa
     sol_file.close();
     trainsol_file.close();
     
+    for(int i = 0; i < (int)trainSoulutions.size(); i++)
+    {
+        idxs.push_back(i);
+    }
+    
 }
 
 void Classification::loadData(string filepath,vector<vector<vector<char>>> & d )
@@ -237,7 +247,7 @@ void Classification::Adjustweight(Weight & weight, vector<vector<char>> & charAr
             }
             else
             {
-                double temp = weight.val[x][y] = weight.val[x][y] + .1*(a * 1);
+                double temp = weight.val[x][y] = weight.val[x][y] + a ;
             }
             
             
@@ -246,7 +256,7 @@ void Classification::Adjustweight(Weight & weight, vector<vector<char>> & charAr
     //adjust b val if
     //if testing without bvals then do so
     if(shouldAddB)
-        weight.b += weight.b + (a*1);
+        weight.b += a;
 
     
 }
@@ -257,12 +267,104 @@ void Classification::perceptronTrain()
     if(trainData.size() != trainSoulutions.size())
     {
         cout << "Training image vector size does not match Training solution vector"  << trainData.size() << " " <<trainSoulutions.size() << endl;
-        return;
+        
     }
     
     if(shouldTrainRandom)
     {
-        cout << "ERROR NEED TO IMPLEMENT RANDOM TRAINING!!!!!!!!!!!!!!!!!!!!!"<< endl;
+            
+        // obtain a time-based seed:
+        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+        shuffle (idxs.begin(), idxs.end(), std::default_random_engine(seed));
+        
+        bool needTrain = true;
+        double epochNum = 0;
+        double a = 1; // Alpha value
+        int lastNumWrong = INT_MAX;
+        int numWrong = 0;
+        int chainWrong = 0;
+        double temp;
+        
+        int prediction;
+        double predicVal;// assume negative double max for prediction
+        
+        cout << "Epoch:Percent --  \t" ;
+        
+        while(needTrain) // while you need to train
+        {
+            needTrain = false;// assume you dont need to train
+            
+            lastNumWrong = numWrong;
+            numWrong = 0;
+            
+            for(int i = 0; i < (int)trainData.size(); i++)// for all of the trainin images
+            {
+                
+                prediction = -1;
+                predicVal = 0;// assume negative double max for prediction
+                
+                
+                for(int j = 0; j < (int)NUMBERCHARS; j++) // for all of the possible character (ie number of weiht vectors)
+                {
+                    
+                    temp = getDotPrdouct(weights[j], trainData[idxs[i]]); // getdot product val
+                    if(temp >= predicVal) // if found a better prediction change your prediction
+                    {
+                        prediction = j;
+                        predicVal = temp;
+                    }
+                }
+                
+                //you now have your prediction so see if it is correct and adjust weight if you need to
+                
+                if(prediction != trainSoulutions[idxs[i]]) // if prediction is wrong
+                {
+                    //cout << prediction << endl;
+                    int solnum = trainSoulutions[idxs[i]];
+                    needTrain = true;
+                    numWrong++;
+                    //upddate weights
+                    //decrease wrong one
+                    Adjustweight(weights[prediction], trainData[idxs[i]], a * (-1));
+                    
+                    //increase correct one
+                    Adjustweight(weights[trainSoulutions[idxs[i]]], trainData[idxs[i]], a);
+                }
+                
+                
+            }
+            
+            cout << epochNum << ":" << (float)( ((float)trainSoulutions.size() - (float)numWrong)/(float)trainSoulutions.size())*100 << "%\t";
+            
+            
+            
+            // handle if it is impossible to improve weights any more
+            if(lastNumWrong == numWrong)
+            {
+                chainWrong++;
+            }
+            else
+            {
+                chainWrong = 0;
+            }
+            
+            
+            if(chainWrong == 100)// if no improvement for 100 iterations then just quit
+                needTrain = false;
+            
+            if(numWrong == 0)// if nothing is wrong then you are done training
+                needTrain = false;
+            
+            
+            if(needTrain == false)
+                cout << endl << endl << "Total Epochs = " << epochNum << endl ;
+            
+            epochNum++;
+            a = 10/(10+epochNum); // get new alpha value
+        }
+
+        
+        
     }
     else // train not randomly
     {
@@ -340,6 +442,9 @@ void Classification::perceptronTrain()
                 needTrain = false;
         
             
+                if(needTrain == false)
+                    cout << "Epoch = " << epochNum << endl;
+            
             epochNum++;
             a = 10/(10+epochNum); // get new alpha value
         }
@@ -358,18 +463,18 @@ double Classification::getDotPrdouct(Weight & weight,vector<vector<char>> & char
             //charArray has backwards index format so this is correct !!!!
             if(charArray[y][x] == ' ')
             {
-                // if there is a space add nothing to the total
+                continue;   // if there is a space add nothing to the total
             }
             
             else// else add the pixel multiplied by the weight to the total
             {
-                total += weight.val[x][y] * 1;
+                total += weight.val[x][y] ;
             }
         }
     }
     
     if(shouldAddB)
-        total += weight.b * 1; // if you should add the bias value then add it
+        total += weight.b ; // if you should add the bias value then add it
     
     return total;
 }
@@ -380,20 +485,20 @@ void Classification::classifyPerceptron()
     double predicVal = -DBL_MAX;// assume negative double max for prediction
     double temp;
     
-    
+    predictions.resize(0);
     for(int i = 0; i < (int)testData.size(); i++)// for all of the test images
     {
         prediction = -1;
         predicVal = 0;
         for(int j = 0; j < (int)NUMBERCHARS; j++) // for all of the possible character (ie number of weight vectors)
         {
-            temp = getDotPrdouct(weights[j], trainData[i]); // getdot product val
+            temp = getDotPrdouct(weights[j], testData[i]); // getdot product val
             if(temp >= predicVal) // if found a better prediction change your prediction
             {
                 prediction = j;
                 predicVal = temp;
             }
-            cout << prediction << endl;
+    
         }
         
         //now have our prediction so push it to the back of the solutions vector
@@ -639,11 +744,16 @@ void Classification::checkSolutionPreceptron()
     double total_attempted[(int)NUMBERCHARS];
     double correct[(int)NUMBERCHARS];
     
+    cout << "Added B val = " << shouldAddB << endl;
+    cout << "Random Training = " << shouldTrainRandom << endl << endl << endl;
+    
+    
     for(int i = 0; i < (int)NUMBERCHARS; i++)
     {
         total_attempted[i] = correct[i] = 0; //clear all values
     }
     
+    /*
     for(int i = 0; i < (int)NUMBERCHARS; i++)
     {
         for(int y = 0; y < (int)IMAGEHEIGHT;  y++)
@@ -651,7 +761,7 @@ void Classification::checkSolutionPreceptron()
             
             for(int x = 0; x < (int)IMAGEWIDTH; x++)
             {
-                if(weights[i].val[x][y] > 100)
+                if(weights[i].val[x][y] > 10000)
                     cout << "*";
                 else
                     cout << " ";
@@ -666,12 +776,12 @@ void Classification::checkSolutionPreceptron()
         
         for(int x = 0; x < (int)IMAGEWIDTH; x++)
         {
-            cout << weights[2].val[x][y]  << "\t" ;
+            cout << weights[9].val[x][y]  << "\t" ;
                 
         }
         cout << endl;
     }
-    cout << endl << endl << endl << endl;
+    cout << endl << endl << endl << endl;*/
     
     if(testSoulutions.size() != predictions.size() )
     {
